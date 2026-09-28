@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FDFAF2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="포토부스">
+  <meta name="description" content="인생네컷 포토부스 - 6가지 프레임, 필터, 바로 인쇄까지!">
+  <meta property="og:title" content="인생네컷 포토부스">
+  <meta property="og:description" content="핸드폰으로 나만의 포토부스를 만들어보세요">
+  <meta property="og:type" content="website">
+  <title>인생네컷 포토부스</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --cream:#FDFAF2; --ink:#2B3A34; --mint:#BFE6D2; --mint-d:#2F6B55;
+      --pink:#F9C6D6; --pink-d:#B33F66; --line:rgba(43,58,52,.18);
+      --display:'Jua','Gowun Dodum','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+      --body:'Gowun Dodum','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    [hidden]{display:none!important}
+    html,body{margin:0;height:100%}
+    body{
+      font-family:var(--body);color:var(--ink);
+      background-color:var(--cream);
+      background-image:radial-gradient(rgba(43,58,52,.08) 1px,transparent 1px);
+      background-size:18px 18px;
+      overflow:hidden;touch-action:manipulation;
+    }
+    h1,h2,p{margin:0}
+    :focus-visible{outline:3px solid var(--mint-d);outline-offset:3px}
+
+    .screen{
+      position:fixed;inset:0;display:none;flex-direction:column;overflow-y:auto;
+      padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .screen.active{display:flex}
+    .inner{width:100%;max-width:480px;margin:0 auto;padding:0 18px 28px;display:flex;flex-direction:column;flex:1}
+    .top{display:flex;align-items:center;gap:12px;padding:16px 0 14px}
+    .top>div{flex:1;min-width:0}
+    .top h2{font-family:var(--display);font-weight:400;font-size:24px;line-height:1.25}
+    .top p{font-size:14px;opacity:.72;margin-top:2px}
+    .back{
+      flex:none;width:44px;height:44px;border-radius:50%;font:inherit;font-size:20px;
+      background:#fff;border:2px solid var(--ink);box-shadow:0 3px 0 var(--ink);cursor:pointer;color:var(--ink);
+    }
+    .back:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+    .back:disabled{opacity:.4}
+
+    .btn{
+      font-family:var(--display);font-size:18px;color:var(--ink);background:#fff;
+      border:2px solid var(--ink);border-radius:999px;padding:12px 16px;min-height:50px;
+      box-shadow:0 4px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s;
+    }
+    .btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .btn.mint{background:var(--mint)}
+    .btn.pink{background:var(--pink)}
+    .btn.small{font-size:15px;min-height:44px;padding:10px 8px}
+    .linkbtn{font:inherit;font-size:15px;color:var(--ink);background:none;border:0;text-decoration:underline;text-underline-offset:4px;padding:10px;cursor:pointer;opacity:.8}
+
+    .field{display:flex;flex-direction:column;gap:6px;font-size:14px}
+    .field input{
+      font:inherit;font-size:17px;color:var(--ink);background:#fff;
+      border:2px solid var(--ink);border-radius:14px;padding:11px 14px;min-height:48px;width:100%;
+    }
+    .hint{font-size:13.5px;line-height:1.5;opacity:.72}
+
+    .start{
+      all:unset;box-sizing:border-box;cursor:pointer;flex:1;width:100%;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:28px 20px;
+    }
+    .start:focus-visible{outline:3px solid var(--mint-d);outline-offset:-8px}
+    .fan{position:relative;width:min(86vw,380px);height:min(48dvh,430px)}
+    .fan canvas{
+      position:absolute;bottom:0;height:100%;width:auto;aspect-ratio:1/3;
+      border:2px solid var(--ink);box-shadow:0 5px 0 var(--ink);background:#fff;
+      transform:translateX(var(--tx,0)) rotate(var(--r,0deg));
+      animation:drop .7s cubic-bezier(.2,.8,.3,1) both;
+    }
+    .fan .f1{left:0;--r:-9deg;animation-delay:0s}
+    .fan .f3{right:0;--r:9deg;animation-delay:.14s}
+    .fan .f2{left:50%;--tx:-50%;z-index:2;animation-delay:.28s}
+    @keyframes drop{from{opacity:0;transform:translateX(var(--tx,0)) translateY(-70px) rotate(var(--r,0deg))}}
+
+    .start h1{font-family:var(--display);font-weight:400;font-size:clamp(34px,9vw,46px);line-height:1.15;text-align:center}
+    .start .go{font-size:17px}
+
+    .frames{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 14px;margin-top:20px}
+    .frame{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px}
+    .frame:focus-visible .pv{outline:3px solid var(--mint-d);outline-offset:4px}
+    .frame .pv{display:block;width:100%}
+    .frame canvas{display:block;width:100%;height:auto;border:2px solid var(--ink);box-shadow:0 4px 0 var(--ink);background:#fff}
+    .frame .nm{font-family:var(--display);font-size:16px}
+    .frame[aria-pressed="true"] canvas{outline:4px solid var(--mint-d);outline-offset:3px}
+    .frame:active canvas{transform:translateY(2px)}
+
+    .viewfinder{
+      position:relative;width:100%;aspect-ratio:520/372;overflow:hidden;background:#1d2723;
+      border:2px solid var(--ink);border-radius:18px;box-shadow:0 4px 0 var(--ink);
+    }
+    .viewfinder video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#1d2723}
+    .viewfinder video.mirror{transform:scaleX(-1)}
+    .count{
+      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;
+      font-family:var(--display);font-size:min(34vw,150px);color:#fff;text-shadow:0 5px 0 rgba(0,0,0,.3);
+    }
+    .count.pop{animation:pop .7s ease-out}
+    @keyframes pop{from{transform:scale(1.7);opacity:.15}to{transform:scale(1);opacity:1}}
+    .badge{
+      position:absolute;left:12px;top:12px;font-family:var(--display);font-size:16px;
+      background:var(--cream);border:2px solid var(--ink);border-radius:999px;padding:3px 12px;
+    }
+    .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+    .flash.on{animation:flash .4s ease-out}
+    @keyframes flash{from{opacity:.95}to{opacity:0}}
+    .camerr{
+      position:absolute;inset:0;background:var(--cream);display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:10px;padding:16px;text-align:center;
+    }
+    .camerr strong{font-family:var(--display);font-weight:400;font-size:20px}
+    .camerr p{font-size:14px}
+    .camerr small{font-size:12.5px;line-height:1.5;opacity:.7}
+    .camerr .btn{min-height:44px;font-size:16px;padding:8px 16px}
+    .tone{position:absolute;inset:0;pointer-events:none}
+    #vf[data-filter="film"] .tone{background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(0,0,0,.38) 100%)}
+    .filters{display:flex;gap:8px;overflow-x:auto;margin:14px -18px 0;padding:4px 18px 8px;scrollbar-width:none}
+    .filters::-webkit-scrollbar{display:none}
+    .chip{
+      flex:none;font:inherit;font-size:15px;color:var(--ink);background:#fff;white-space:nowrap;
+      border:2px solid var(--line);border-radius:999px;padding:0 16px;min-height:44px;cursor:pointer;
+    }
+    .chip[aria-checked="true"]{background:var(--pink);border-color:var(--ink);box-shadow:0 3px 0 var(--ink);font-family:var(--display)}
+    .chip:disabled{opacity:.5;cursor:not-allowed}
+    .thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 4px}
+    .thumb{aspect-ratio:520/372;border:2px dashed var(--line);border-radius:8px;background-size:cover;background-position:center}
+    .thumb.on{border:2px solid var(--ink)}
+    .actions{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:14px}
+    .actions .btn{width:100%}
+
+    .result{gap:6px}
+    .stage{display:flex;justify-content:center;padding:18px 0 14px}
+    .stage img{
+      display:block;height:min(52dvh,540px);width:auto;aspect-ratio:1/3;
+      border:2px solid var(--ink);box-shadow:0 6px 0 var(--ink);background:#fff;
+      transform:rotate(-1.5deg);-webkit-touch-callout:default;user-select:none;
+    }
+    .stage.eject img{animation:eject .6s cubic-bezier(.2,.8,.3,1)}
+    @keyframes eject{from{opacity:0;transform:translateY(-36px) rotate(-1.5deg)}}
+    .stage.busy img{opacity:.35}
+    .panel{display:flex;flex-direction:column;gap:12px}
+    .panel h2{font-family:var(--display);font-weight:400;font-size:26px}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+    .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+    .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:4px}
+    .seg button{font:inherit;font-size:14px;border:0;background:none;color:var(--ink);border-radius:999px;padding:9px 4px;cursor:pointer}
+    .seg button[aria-checked="true"]{background:var(--ink);color:var(--cream)}
+
+    @media (min-width:760px){
+      .result{max-width:880px;flex-direction:row;align-items:center;gap:44px}
+      .stage{flex:1;padding:24px 0}
+      .stage img{height:min(76dvh,700px)}
+      .panel{flex:1}
+    }
+
+    #toast{
+      position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);
+      background:var(--ink);color:var(--cream);border-radius:999px;padding:11px 20px;font-size:15px;
+      opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:90vw;text-align:center;
+    }
+    #toast.show{opacity:1;transform:translate(-50%,0)}
+
+    #printSheet{display:none}
+    #printSheet img{display:block;width:2in;height:6in}
+    #printSheet[data-mode="p46"]{width:4in;height:6in;overflow:hidden}
+    #printSheet[data-mode="one"]{width:2in;height:6in;overflow:hidden}
+    #printSheet[data-mode="a4"]{width:8.27in;padding-top:.5in}
+    #printSheet[data-mode="a4"] img{width:1.95in;height:5.85in}
+    @media print{
+      html,body{height:auto!important;overflow:visible!important;background:#fff!important;margin:0!important;padding:0!important}
+      body>*:not(#printSheet){display:none!important}
+      #printSheet{display:flex!important;justify-content:center;align-items:flex-start}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *{animation:none!important;transition:none!important}
+    }
+  </style>
+</head>
+<body>
+
+  <section id="s-start" class="screen active">
+    <button class="start" id="startBtn" type="button" aria-label="인생네컷 포토부스 시작하기">
+      <div class="fan" id="fan" aria-hidden="true"></div>
+      <div><h1>인생네컷 포토부스</h1></div>
+      <p class="go">화면을 눌러 시작하세요</p>
+    </button>
+  </section>
+
+  <section id="s-frame" class="screen">
+    <div class="inner">
+      <header class="top">
+        <button class="back" id="frameBack" type="button" aria-label="뒤로">←</button>
+        <div>
+          <h2>프레임을 골라주세요 🎀</h2>
+          <p id="frameSub">프레임을 누르면 카메라가 켜져요</p>
+        </div>
+      </header>
+      <label class="field">
+        <span>사진 아래에 넣을 문구</span>
+        <input id="capA" type="text" maxlength="16" value="인생네컷" autocomplete="off">
+      </label>
+      <div class="frames" id="frames"></div>
+    </div>
+  </section>
+
+  <section id="s-cam" class="screen">
+    <div class="inner">
+      <header class="top">
+        <button class="back" id="camBack" type="button" aria-label="뒤로">←</button>
+        <div>
+          <h2>촬영 준비</h2>
+          <p>3초 카운트다운 후 4장이 자동 촬영돼요</p>
+        </div>
+        <button class="back" id="flipBtn" type="button" aria-label="앞·뒤 카메라 전환">🔄</button>
+      </header>
+
+      <div class="viewfinder" id="vf">
+        <video id="video" playsinline muted autoplay></video>
+        <div class="tone"></div>
+        <div class="count" id="count" aria-live="assertive"></div>
+        <div class="badge" id="badge" hidden>1/4</div>
+        <div class="flash" id="flash"></div>
+        <div class="camerr" id="camErr" hidden>
+          <strong>카메라를 열 수 없어요.</strong>
+          <p id="errWhy" hidden></p>
+          <button class="btn mint" id="retryBtn" type="button">다시 시도</button>
+          <button class="btn" id="pickBtn2" type="button">📁 사진 4장 고르기</button>
+          <small>카카오톡·인스타 안에서 열면 카메라가 막혀요.<br>Chrome이나 Safari로 열어주세요.</small>
+        </div>
+      </div>
+
+      <div class="filters" id="filters" role="radiogroup" aria-label="사진 필터"></div>
+
+      <div class="thumbs" id="thumbs">
+        <div class="thumb"></div><div class="thumb"></div><div class="thumb"></div><div class="thumb"></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn pink" id="shootBtn" type="button" disabled>📸 촬영 시작</button>
+        <button class="linkbtn" id="pickBtn" type="button">카메라 대신 사진 4장 고르기</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="s-result" class="screen">
+    <div class="inner result">
+      <div class="stage" id="stage">
+        <img id="resultImg" alt="완성된 인생네컷" draggable="false">
+      </div>
+
+      <div class="panel">
+        <h2>완성! 🎉</h2>
+        <p class="hint">사진을 꾹 누르면 바로 저장돼요</p>
+
+        <label class="field">
+          <span>사진 아래 문구</span>
+          <input id="capB" type="text" maxlength="16" autocomplete="off">
+        </label>
+        <p class="hint">문구를 바꾸면 사진이 다시 만들어져요</p>
+
+        <div class="row2">
+          <button class="btn mint" id="saveBtn" type="button">💾 저장하기</button>
+          <button class="btn pink" id="printBtn" type="button">🖨️ 바로 인쇄</button>
+        </div>
+
+        <div class="seg" id="seg" role="radiogroup" aria-label="인쇄 용지">
+          <button type="button" role="radio" data-mode="p46" aria-checked="true">4×6 (2장)</button>
+          <button type="button" role="radio" data-mode="a4" aria-checked="false">A4 (4장)</button>
+          <button type="button" role="radio" data-mode="one" aria-checked="false">1장만</button>
+        </div>
+        <p class="hint" id="printHint"></p>
+
+        <div class="row3">
+          <button class="btn small" id="tabBtn" type="button">🔗 새 탭</button>
+          <button class="btn small" id="retakeBtn" type="button">🔄 다시 찍기</button>
+          <button class="btn small" id="frameBtn" type="button">🎀 프레임 바꾸기</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="filePick" accept="image/*" multiple hidden>
+  <div id="printSheet" data-mode="p46" aria-hidden="true"></div>
+  <style id="pageStyle"></style>
+
+  <script src="./js/app.js"></script>
+</body>
+</html>
